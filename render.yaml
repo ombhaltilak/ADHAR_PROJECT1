@@ -1,32 +1,59 @@
 services:
+  # Frontend: Static site
   - type: web
-    name: flask-app
-    env: python
-    rootDir: api/
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn -w 4 -b 0.0.0.0:$PORT app:app
+    name: my-render-app-frontend
+    env: static
+    staticPublishPath: .
+    buildCommand: echo "No build step needed for static site"
+    startCommand: python3 -m http.server 8000
     envVars:
-      - key: GEMINI_API_KEY
-        value: AzIaSyDp3-7PBLlp_5DQmLQitH9B-ETqsZgx-Gg  # Replace with secure method if needed
-      - key: CLASS_MODEL_PATH
-        value: models/classificationbest.pt
-      - key: DETECT_MODEL_PATH
-        value: models/detectionbest.pt
-      - key: NODEJS_URL
-        value: https://node-app.onrender.com/store-results  # Update after Node.js deployment
       - key: PYTHON_VERSION
         value: 3.9
-    autoDeploy: true
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
 
+  # Backend: Flask app (Python)
   - type: web
-    name: node-app
+    name: my-render-app-flask-backend
+    env: python
+    build:
+      context: .  # Build from root
+      command: pip install -r api/requirements.txt  # Install from api/ if that's where it is
+    startCommand: gunicorn -w 4 -b 0.0.0.0:5000 api.app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: CLASS_MODEL_PATH
+        value: models/classification_best.pt
+      - key: DETECT_MODEL_PATH
+        value: models/detection_best.pt
+      - key: NODEJS_URL
+        value: https://my-render-app-node-backend.onrender.com/store-results
+      - key: FLASK_HOST
+        value: 0.0.0.0
+      - key: FLASK_PORT
+        value: 5000
+
+  # Backend: Node.js app
+  - type: web
+    name: my-render-app-node-backend
     env: node
-    rootDir: node-backend/
-    buildCommand: yarn install
+    workingDir: node-backend
+    buildCommand: npm install
     startCommand: node index.js
     envVars:
-      - key: MONGODB_URI
-        value: mongodb+srv://omnbhaltilak:7jWkAhqwv6MbfE3w@cluster0.xhycs.mongodb.net/verification_db?retryWrites=true&w=majority&appName=Cluster0
       - key: NODE_VERSION
         value: 18
-    autoDeploy: true
+      - key: MONGODB_URI
+        sync: false
+      - key: PORT
+        value: 3000
+
+databases:
+  - name: verification_db
+    databaseName: verification_db
+    user: admin
