@@ -1,0 +1,10 @@
+flask
+opencv-python-headless
+ultralytics
+easyocr
+pandas
+flask-cors
+google-generativeai
+fuzzywuzzy
+python-Levenshtein
+requests
