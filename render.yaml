@@ -7,7 +7,7 @@ services:
     startCommand: gunicorn -w 4 -b 0.0.0.0:$PORT app:app
     envVars:
       - key: GEMINI_API_KEY
-        value: your-gemini-api-key  # Replace or use Render's secure env vars
+        value: AzIaSyDp3-7PBLlp_5DQmLQitH9B-ETqsZgx-Gg  # Replace with secure method if needed
       - key: CLASS_MODEL_PATH
         value: models/classificationbest.pt
       - key: DETECT_MODEL_PATH
@@ -26,7 +26,7 @@ services:
     startCommand: node index.js
     envVars:
       - key: MONGODB_URI
-        value: your-mongodb-uri  # Replace or use Render's secure env vars
+        value: mongodb+srv://omnbhaltilak:7jWkAhqwv6MbfE3w@cluster0.xhycs.mongodb.net/verification_db?retryWrites=true&w=majority&appName=Cluster0
       - key: NODE_VERSION
         value: 18
     autoDeploy: true
