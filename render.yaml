@@ -2,17 +2,18 @@ services:
   - type: web
     name: flask-app
     env: python
-    buildCommand: pip install -r api/requirements.txt
-    startCommand: gunicorn -w 4 -b 0.0.0.0:$PORT api.app:app
+    rootDir: api/
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -w 4 -b 0.0.0.0:$PORT app:app
     envVars:
       - key: GEMINI_API_KEY
-        value: your-gemini-api-key  # Replace with your actual key or use Render's secure env vars
+        value: your-gemini-api-key  # Replace or use Render's secure env vars
       - key: CLASS_MODEL_PATH
-        value: api/models/classificationbest.pt
+        value: models/classificationbest.pt
       - key: DETECT_MODEL_PATH
-        value: api/models/detectionbest.pt
+        value: models/detectionbest.pt
       - key: NODEJS_URL
-        value: https://node-app.onrender.com/store-results  # Update after Node.js service is live
+        value: https://node-app.onrender.com/store-results  # Update after Node.js deployment
       - key: PYTHON_VERSION
         value: 3.9
     autoDeploy: true
@@ -20,11 +21,12 @@ services:
   - type: web
     name: node-app
     env: node
+    rootDir: node-backend/
     buildCommand: yarn install
-    startCommand: node node-backend/index.js
+    startCommand: node index.js
     envVars:
       - key: MONGODB_URI
-        value: your-mongodb-uri  # Replace with your actual URI or use Render's secure env vars
+        value: your-mongodb-uri  # Replace or use Render's secure env vars
       - key: NODE_VERSION
         value: 18
     autoDeploy: true
