@@ -20,7 +20,20 @@ services:
     env: python
     build:
       context: .
-      command: pip install --upgrade pip && pip install --no-cache-dir -r api/requirements.txt && pip show gunicorn
+      command: |
+        pip install --upgrade pip
+        pip install --no-cache-dir flask==2.3.2
+        pip install --no-cache-dir ultralytics==8.0.0
+        pip install --no-cache-dir easyocr==1.7.0
+        pip install --no-cache-dir flask-cors==3.0.10
+        pip install --no-cache-dir gunicorn==20.1.0
+        pip install --no-cache-dir pandas==1.5.3
+        pip install --no-cache-dir opencv-python==4.5.5.64
+        pip install --no-cache-dir google-generativeai==0.1.0
+        pip install --no-cache-dir fuzzywuzzy==0.18.0
+        pip install --no-cache-dir python-Levenshtein==0.20.9
+        pip install --no-cache-dir requests==2.28.1
+        pip show gunicorn
     startCommand: gunicorn -w 4 -b 0.0.0.0:5000 api.app:app
     envVars:
       - key: PYTHON_VERSION
