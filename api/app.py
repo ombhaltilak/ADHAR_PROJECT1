@@ -266,4 +266,5 @@ def download_results():
 
 if __name__ == '__main__':
     logger.info("Starting Flask server")
-    app.run(host=FLASK_HOST, port=FLASK_PORT, debug=True)
+    port = int(os.environ.get("PORT", 10000))  # Render default port
+    app.run(host="0.0.0.0", port=FLASK_PORT, debug=False)
