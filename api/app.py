@@ -16,7 +16,7 @@ from fuzzywuzzy import fuzz, process
 
 # Flask app setup
 app = Flask(__name__)
-CORS(app, resources={r"/process-files": {"origins": "http://localhost:8000"}})
+CORS(app, resources={r"/process-files": {"origins": "https://my-render-app-frontend.onrender.com"}})  # Update CORS for Render URL
 
 # Configure logging
 logging.basicConfig(
@@ -25,22 +25,22 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Environment variables (set in Vercel dashboard)
+# Environment variables
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 CLASS_MODEL_PATH = os.getenv("CLASS_MODEL_PATH", "models/classification_best.pt")
 DETECT_MODEL_PATH = os.getenv("DETECT_MODEL_PATH", "models/detection_best.pt")
-NODEJS_URL = os.getenv("NODEJS_URL", "https://your-nodejs-app.vercel.app/store-results")
+NODEJS_URL = os.getenv("NODEJS_URL", "https://my-render-app-node-backend.onrender.com/store-results")
 FLASK_HOST = os.getenv("FLASK_HOST", "0.0.0.0")
 FLASK_PORT = int(os.getenv("FLASK_PORT", 5000))
 
 # Validate critical environment variables
 if not GEMINI_API_KEY:
-    logger.error("GEMINI_API_KEY not set in Vercel environment variables")
+    logger.error("GEMINI_API_KEY not set in Render environment variables")
     raise ValueError("GEMINI_API_KEY is required")
 
 if not all(os.path.exists(p) for p in [CLASS_MODEL_PATH, DETECT_MODEL_PATH]):
     logger.error(f"Model files missing: CLASS={CLASS_MODEL_PATH}, DETECT={DETECT_MODEL_PATH}")
-    raise FileNotFoundError("Model files missing or incorrect paths in Vercel environment variables!")
+    raise FileNotFoundError("Model files missing or incorrect paths!")
 
 # Initialize models and APIs
 genai.configure(api_key=GEMINI_API_KEY)
@@ -57,32 +57,24 @@ states = [
     "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"
 ]
 
-# [Rest of the functions (parse_address, classify_image, extract_text, calculate_match_score_api, calculate_score) remain unchanged]
-# Copy the same function definitions as in your original code here.
-
+# Functions (unchanged, included for completeness)
 def parse_address(address):
-    # ... (same as original)
-    pass
+    pass  # Implement as per your original code
 
 def classify_image(image_path):
-    # ... (same as original)
-    pass
+    pass  # Implement as per your original code
 
 def extract_text(image_path):
-    # ... (same as original)
-    pass
+    pass  # Implement as per your original code
 
 def calculate_match_score_api(extracted_text, excel_text, retries=3, delay=2, field_type="text"):
-    # ... (same as original)
-    pass
+    pass  # Implement as per your original code
 
 def calculate_score(extracted, excel):
-    # ... (same as original)
-    pass
+    pass  # Implement as per your original code
 
 @app.route('/process-files', methods=['POST'])
 def process_files():
-    # ... (same as original, but update NODEJS_URL if needed)
     try:
         logger.info("Received POST request to /process-files")
         if 'zipFile' not in request.files or 'excelFile' not in request.files:
@@ -256,7 +248,6 @@ def process_files():
 
 @app.route('/download-results', methods=['GET'])
 def download_results():
-    """Serve the verification results Excel file."""
     try:
         logger.info("Serving download-results request")
         return send_from_directory('uploads', 'verification_results.xlsx', as_attachment=True)
@@ -266,5 +257,5 @@ def download_results():
 
 if __name__ == '__main__':
     logger.info("Starting Flask server")
-    port = int(os.environ.get("PORT", 10000))  # Render default port
-    app.run(host="0.0.0.0", port=FLASK_PORT, debug=False)
+    port = int(os.environ.get("PORT", 5000))  # Use Render's PORT or default to 5000
+    app.run(host=FLASK_HOST, port=port, debug=False)
