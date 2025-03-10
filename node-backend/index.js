@@ -3,7 +3,7 @@ const { MongoClient } = require('mongodb');
 const dotenv = require('dotenv');
 const path = require('path');
 const fs = require('fs');
-const ExcelJS = require('exceljs'); // For generating Excel files
+const ExcelJS = require('exceljs');
 
 dotenv.config();
 
@@ -37,7 +37,6 @@ async function connectToMongo() {
     }
 }
 
-// Define the expected data structure (pseudo-schema)
 const verificationSchema = {
     name: String,
     uid: String,
@@ -46,7 +45,6 @@ const verificationSchema = {
     document_type: String
 };
 
-// Store verification results from Flask with specific fields
 app.post('/store-results', async (req, res) => {
     try {
         if (!db) {
@@ -58,10 +56,8 @@ app.post('/store-results', async (req, res) => {
             return res.status(400).json({ error: 'Invalid or empty results' });
         }
 
-        // Log incoming data for debugging
         console.log('Received data:', results);
 
-        // Validate and format results
         const formattedResults = results.map(result => {
             if (typeof result !== 'object' || result === null) {
                 throw new Error('Invalid result object');
@@ -72,7 +68,7 @@ app.post('/store-results', async (req, res) => {
                 address: result['address'] || '',
                 final_remark: result['final_remark'] || '',
                 document_type: result['document_type'] || '',
-                timestamp: new Date() // Add timestamp for tracking
+                timestamp: new Date()
             };
         });
 
@@ -89,7 +85,6 @@ app.post('/store-results', async (req, res) => {
     }
 });
 
-// Retrieve all stored results
 app.get('/get-results', async (req, res) => {
     try {
         if (!db) {
@@ -106,7 +101,6 @@ app.get('/get-results', async (req, res) => {
     }
 });
 
-// Generate and serve Excel file
 app.get('/download-results', async (req, res) => {
     try {
         if (!db) {
@@ -120,11 +114,9 @@ app.get('/download-results', async (req, res) => {
             return res.status(404).json({ error: 'No results found to export' });
         }
 
-        // Create a new workbook and worksheet
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Verification Results');
 
-        // Define columns
         worksheet.columns = [
             { header: 'Name', key: 'name', width: 20 },
             { header: 'UID', key: 'uid', width: 15 },
@@ -134,10 +126,8 @@ app.get('/download-results', async (req, res) => {
             { header: 'Timestamp', key: 'timestamp', width: 20 }
         ];
 
-        // Add data rows
         worksheet.addRows(results);
 
-        // Generate the Excel file
         const filePath = path.join(__dirname, '../uploads', 'verification_results.xlsx');
         const uploadDir = path.dirname(filePath);
         if (!fs.existsSync(uploadDir)) {
@@ -150,7 +140,6 @@ app.get('/download-results', async (req, res) => {
                 console.error('Error downloading file:', err);
                 res.status(500).json({ error: 'Failed to download file' });
             } else {
-                // Optionally clean up the file after download
                 fs.unlink(filePath, (err) => {
                     if (err) console.error('Error deleting file:', err);
                 });
@@ -162,7 +151,6 @@ app.get('/download-results', async (req, res) => {
     }
 });
 
-// Graceful shutdown
 process.on('SIGTERM', async () => {
     console.log('SIGTERM received, shutting down gracefully...');
     if (client) {
@@ -181,7 +169,6 @@ process.on('SIGINT', async () => {
     process.exit(0);
 });
 
-// Start the server
 async function startServer() {
     await connectToMongo();
     app.listen(port, () => {
