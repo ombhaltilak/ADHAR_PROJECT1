@@ -19,8 +19,8 @@ services:
     name: my-render-app-flask-backend
     env: python
     build:
-      context: .  # Build from root
-      command: pip install -r api/requirements.txt  # Install from api/ if that's where it is
+      context: .
+      command: pip install --upgrade pip && pip install --no-cache-dir -r api/requirements.txt && pip show gunicorn
     startCommand: gunicorn -w 4 -b 0.0.0.0:5000 api.app:app
     envVars:
       - key: PYTHON_VERSION
